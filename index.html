@@ -73,107 +73,74 @@
             box-shadow: 0 0 60px rgba(255, 107, 107, 0.05);
         }
 
-        #welcome-content .logo-big {
-            font-size: 42px;
+        /* ============================================
+           LOGO BARU - MOZTRIS
+           ============================================ */
+        .logo-big {
+            font-size: 52px;
             font-weight: 900;
             font-family: 'Orbitron', sans-serif;
-            margin-bottom: 4px;
+            line-height: 1.1;
+            letter-spacing: 4px;
+            text-shadow: 0 0 40px rgba(255, 107, 107, 0.2);
         }
-        #welcome-content .logo-big .m {
+        .logo-big .m {
+            color: #ff6b6b;
+            text-shadow: 0 0 30px rgba(255, 107, 107, 0.4);
+        }
+        .logo-big .oz {
+            color: #ffffff;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+        .logo-big .tri {
+            color: #ffd700;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        }
+        .logo-big .s {
+            color: #44ddff;
+            text-shadow: 0 0 30px rgba(68, 221, 255, 0.3);
+        }
+
+        .logo-sub {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 10px;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            font-weight: 400;
+            margin-top: 2px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* ============================================
+           LOGO KECIL DI HEADER
+           ============================================ */
+        .logo-small {
+            display: flex;
+            align-items: baseline;
+            gap: 2px;
+            font-size: 14px;
+            font-weight: 900;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+        }
+        .logo-small .m {
             color: #ff6b6b;
         }
-        #welcome-content .logo-big .rest {
-            color: #fff;
+        .logo-small .oz {
+            color: #ffffff;
         }
-        #welcome-content .logo-big .highlight {
+        .logo-small .tri {
             color: #ffd700;
         }
-
-        #welcome-content .tagline {
-            color: rgba(255, 255, 255, 0.3);
-            font-size: 9px;
-            letter-spacing: 6px;
-            text-transform: uppercase;
-            margin-bottom: 20px;
-            font-weight: 400;
+        .logo-small .s {
+            color: #44ddff;
         }
-
-        #welcome-content .divider {
-            width: 60px;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #ff6b6b, transparent);
-            margin: 0 auto 18px auto;
-            border-radius: 2px;
-        }
-
-        #welcome-content .desc {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 10px;
-            line-height: 1.8;
-            letter-spacing: 0.5px;
-            font-weight: 300;
-            margin-bottom: 20px;
-            padding: 0 5px;
-        }
-        #welcome-content .desc span {
-            color: #ff6b6b;
-            font-weight: 700;
-        }
-
-        #welcome-content .features {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 22px;
-        }
-        #welcome-content .features .feat {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 10px;
-            padding: 10px 5px;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-        }
-        #welcome-content .features .feat .icon {
-            font-size: 18px;
-            display: block;
-        }
-        #welcome-content .features .feat .label {
-            color: rgba(255, 255, 255, 0.2);
-            font-size: 6px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            margin-top: 3px;
-            font-weight: 400;
-        }
-
-        #welcome-content .btn-play {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-            border: none;
-            color: #fff;
-            padding: 14px 40px;
-            border-radius: 14px;
-            font-size: 16px;
-            font-weight: 700;
-            font-family: 'Orbitron', sans-serif;
-            cursor: pointer;
-            transition: 0.3s;
-            letter-spacing: 3px;
-            box-shadow: 0 0 40px rgba(255, 107, 107, 0.2);
-            touch-action: manipulation;
-            width: 100%;
-        }
-        #welcome-content .btn-play:active {
-            transform: scale(0.95);
-            box-shadow: 0 0 60px rgba(255, 107, 107, 0.4);
-        }
-        #welcome-content .btn-play:hover {
-            box-shadow: 0 0 60px rgba(255, 107, 107, 0.3);
-        }
-
-        #welcome-content .version {
-            color: rgba(255, 255, 255, 0.06);
-            font-size: 6px;
-            margin-top: 14px;
+        .logo-small .dev-tag {
+            color: rgba(255, 255, 255, 0.1);
+            font-size: 5px;
             letter-spacing: 2px;
+            font-weight: 400;
+            margin-left: 4px;
         }
 
         /* ============================================
@@ -230,24 +197,6 @@
             background: #0a0a1a;
             border: 1.5px solid rgba(255, 107, 107, 0.2);
             flex-shrink: 0;
-        }
-        #logo-box .logo-text .name {
-            color: #fff;
-            font-size: 10px;
-            font-weight: 900;
-            letter-spacing: 1px;
-            font-family: 'Orbitron', sans-serif;
-            line-height: 1.1;
-        }
-        #logo-box .logo-text .name .highlight {
-            color: #ff6b6b;
-        }
-        #logo-box .logo-text .dev {
-            color: rgba(255, 255, 255, 0.15);
-            font-size: 4px;
-            letter-spacing: 2px;
-            font-weight: 400;
-            font-family: 'Orbitron', sans-serif;
         }
 
         #preview-box {
@@ -782,8 +731,11 @@
                 width: 22px;
                 height: 22px;
             }
-            #logo-box .logo-text .name {
-                font-size: 7px;
+            .logo-small {
+                font-size: 10px;
+            }
+            .logo-small .dev-tag {
+                font-size: 4px;
             }
             #stats {
                 gap: 2px;
@@ -808,8 +760,13 @@
             #welcome-content {
                 padding: 20px 15px;
             }
-            #welcome-content .logo-big {
-                font-size: 30px;
+            .logo-big {
+                font-size: 34px;
+                letter-spacing: 2px;
+            }
+            .logo-sub {
+                font-size: 7px;
+                letter-spacing: 5px;
             }
             #welcome-content .desc {
                 font-size: 8px;
@@ -857,8 +814,8 @@
                 width: 26px;
                 height: 26px;
             }
-            #logo-box .logo-text .name {
-                font-size: 8px;
+            .logo-small {
+                font-size: 12px;
             }
         }
 
@@ -897,8 +854,15 @@
                 width: 38px;
                 height: 38px;
             }
-            #logo-box .logo-text .name {
-                font-size: 12px;
+            .logo-small {
+                font-size: 16px;
+            }
+            .logo-small .dev-tag {
+                font-size: 6px;
+            }
+            .logo-big {
+                font-size: 60px;
+                letter-spacing: 6px;
             }
         }
 
@@ -971,8 +935,11 @@
                 width: 18px;
                 height: 18px;
             }
-            #logo-box .logo-text .name {
-                font-size: 6px;
+            .logo-small {
+                font-size: 8px;
+            }
+            .logo-small .dev-tag {
+                font-size: 3px;
             }
             #status {
                 font-size: 4px;
@@ -995,6 +962,24 @@
                 font-size: 5px;
                 min-width: 20px;
             }
+            .logo-big {
+                font-size: 28px;
+                letter-spacing: 2px;
+            }
+            .logo-sub {
+                font-size: 6px;
+                letter-spacing: 4px;
+            }
+            #welcome-content {
+                padding: 15px 12px;
+            }
+            #welcome-content .desc {
+                font-size: 7px;
+            }
+            #welcome-content .btn-play {
+                font-size: 11px;
+                padding: 8px 16px;
+            }
         }
     </style>
 </head>
@@ -1004,14 +989,15 @@
     <canvas id="bg-canvas"></canvas>
 
     <!-- ============================================
-    WELCOME SCREEN
+    WELCOME SCREEN - LOGO BARU
     ============================================ -->
     <div id="welcome-screen">
         <div id="welcome-content">
+            <!-- LOGO BARU -->
             <div class="logo-big">
-                <span class="m">M</span><span class="rest">OZ</span><span class="highlight">T</span><span class="rest">RIS</span>
+                <span class="m">M</span><span class="oz">OZ</span><span class="tri">TRI</span><span class="s">S</span>
             </div>
-            <div class="tagline">✦ 100 LEVEL CHALLENGE ✦</div>
+            <div class="logo-sub">✦ TETRIS GAME ✦</div>
             <div class="divider"></div>
 
             <div class="desc">
@@ -1080,9 +1066,10 @@
             <div id="header">
                 <div id="logo-box">
                     <canvas id="logo-canvas" width="80" height="80"></canvas>
-                    <div class="logo-text">
-                        <div class="name"><span class="highlight">MOZ</span>TRIS</div>
-                        <div class="dev">✦ BY <span style="color:rgba(255,107,107,0.3);font-weight:700;">AP21</span> ✦</div>
+                    <!-- LOGO KECIL DI HEADER -->
+                    <div class="logo-small">
+                        <span class="m">M</span><span class="oz">OZ</span><span class="tri">TRI</span><span class="s">S</span>
+                        <span class="dev-tag">✦ AP21 ✦</span>
                     </div>
                 </div>
                 <div id="preview-box">
@@ -1151,7 +1138,7 @@
 
     <script>
         // ============================================================
-        // LOGO GENERATOR
+        // LOGO GENERATOR (ICON KOTAK)
         // ============================================================
         function generateLogo() {
             const canvas = document.getElementById('logo-canvas');
@@ -1174,6 +1161,7 @@
             ctx.stroke();
             ctx.shadowBlur = 0;
 
+            // Huruf "M" dari blok Tetris
             const colors = ['#ff6b6b', '#ffd700', '#ff6b6b', '#ffd700'];
             const blocks = [
                 [0, 0],
@@ -1226,7 +1214,7 @@
         }
 
         // ============================================================
-        // BACKGROUND SPACE
+        // BACKGROUND SPACE (sama seperti sebelumnya)
         // ============================================================
         const bgCanvas = document.getElementById('bg-canvas');
         const bgCtx = bgCanvas.getContext('2d');
@@ -1430,11 +1418,9 @@
             setTimeout(() => {
                 welcomeScreen.style.display = 'none';
             }, 800);
-            // Start timer ketika game dimulai
             if (!isTimerRunning && !gameOver) startTimer();
         });
 
-        // Tap di luar juga bisa (untuk mobile)
         welcomeScreen.addEventListener('touchstart', (e) => {
             if (e.target === welcomeScreen || e.target.id === 'welcome-content') {
                 welcomeScreen.classList.add('hide');
@@ -1882,7 +1868,7 @@
 
         function hardDrop() {
             if (gameOver || !currentPiece || isLevelingUp || isCongratsShowing || isVictoryShowing) return;
-            if (!isTimerRunning && !welcomeScreen.classList.contains('hide') === false) startTimer();
+            if (!isTimerRunning && !welcomeScreen.classList.contains('hide')) startTimer();
             let dropRow = currentPiece.row;
             while (isValid(currentPiece, dropRow + 1, currentPiece.col)) {
                 dropRow++;
