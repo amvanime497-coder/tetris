@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Moztris - 100 Level</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -38,6 +39,146 @@
             z-index: 0;
         }
 
+        /* ============================================
+           WELCOME SCREEN
+           ============================================ */
+        #welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        #welcome-screen.hide {
+            opacity: 0;
+            transform: scale(1.05);
+            pointer-events: none;
+        }
+
+        #welcome-content {
+            max-width: 420px;
+            width: 90%;
+            padding: 30px 25px;
+            text-align: center;
+            background: rgba(10, 10, 30, 0.6);
+            border-radius: 24px;
+            border: 1.5px solid rgba(255, 107, 107, 0.2);
+            box-shadow: 0 0 60px rgba(255, 107, 107, 0.05);
+        }
+
+        #welcome-content .logo-big {
+            font-size: 42px;
+            font-weight: 900;
+            font-family: 'Orbitron', sans-serif;
+            margin-bottom: 4px;
+        }
+        #welcome-content .logo-big .m {
+            color: #ff6b6b;
+        }
+        #welcome-content .logo-big .rest {
+            color: #fff;
+        }
+        #welcome-content .logo-big .highlight {
+            color: #ffd700;
+        }
+
+        #welcome-content .tagline {
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 9px;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+
+        #welcome-content .divider {
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ff6b6b, transparent);
+            margin: 0 auto 18px auto;
+            border-radius: 2px;
+        }
+
+        #welcome-content .desc {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 10px;
+            line-height: 1.8;
+            letter-spacing: 0.5px;
+            font-weight: 300;
+            margin-bottom: 20px;
+            padding: 0 5px;
+        }
+        #welcome-content .desc span {
+            color: #ff6b6b;
+            font-weight: 700;
+        }
+
+        #welcome-content .features {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 22px;
+        }
+        #welcome-content .features .feat {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            padding: 10px 5px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        #welcome-content .features .feat .icon {
+            font-size: 18px;
+            display: block;
+        }
+        #welcome-content .features .feat .label {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 6px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 3px;
+            font-weight: 400;
+        }
+
+        #welcome-content .btn-play {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            border: none;
+            color: #fff;
+            padding: 14px 40px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            font-family: 'Orbitron', sans-serif;
+            cursor: pointer;
+            transition: 0.3s;
+            letter-spacing: 3px;
+            box-shadow: 0 0 40px rgba(255, 107, 107, 0.2);
+            touch-action: manipulation;
+            width: 100%;
+        }
+        #welcome-content .btn-play:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 60px rgba(255, 107, 107, 0.4);
+        }
+        #welcome-content .btn-play:hover {
+            box-shadow: 0 0 60px rgba(255, 107, 107, 0.3);
+        }
+
+        #welcome-content .version {
+            color: rgba(255, 255, 255, 0.06);
+            font-size: 6px;
+            margin-top: 14px;
+            letter-spacing: 2px;
+        }
+
+        /* ============================================
+           GAME
+           ============================================ */
         #game-wrapper {
             position: fixed;
             top: 0;
@@ -55,14 +196,14 @@
             background: rgba(5, 5, 20, 0.92);
             padding: 10px;
             border-radius: 16px;
-            border: 1.5px solid rgba(122, 90, 240, 0.15);
+            border: 1.5px solid rgba(255, 107, 107, 0.15);
             display: flex;
             flex-direction: column;
             gap: 5px;
             width: 100%;
             max-width: 380px;
             max-height: 98vh;
-            box-shadow: 0 0 40px rgba(122, 90, 240, 0.05);
+            box-shadow: 0 0 40px rgba(255, 107, 107, 0.05);
             backdrop-filter: blur(10px);
             overflow: hidden;
         }
@@ -87,7 +228,7 @@
             border-radius: 8px;
             image-rendering: pixelated;
             background: #0a0a1a;
-            border: 1.5px solid rgba(122, 90, 240, 0.2);
+            border: 1.5px solid rgba(255, 107, 107, 0.2);
             flex-shrink: 0;
         }
         #logo-box .logo-text .name {
@@ -117,7 +258,7 @@
             background: rgba(0, 0, 20, 0.4);
             padding: 2px 8px 3px 8px;
             border-radius: 10px;
-            border: 1px solid rgba(122, 90, 240, 0.08);
+            border: 1px solid rgba(255, 107, 107, 0.08);
             flex-shrink: 0;
         }
         #preview-box .label {
@@ -147,7 +288,7 @@
             border-radius: 6px;
             padding: 2px 2px;
             text-align: center;
-            border: 1px solid rgba(122, 90, 240, 0.04);
+            border: 1px solid rgba(255, 107, 107, 0.04);
         }
         #stats .stat .s-label {
             color: rgba(255, 255, 255, 0.15);
@@ -181,8 +322,8 @@
         }
 
         #restart-btn {
-            background: rgba(122, 90, 240, 0.08);
-            border: 1px solid rgba(122, 90, 240, 0.08);
+            background: rgba(255, 107, 107, 0.08);
+            border: 1px solid rgba(255, 107, 107, 0.08);
             color: rgba(255, 255, 255, 0.3);
             border-radius: 6px;
             width: 32px;
@@ -197,7 +338,7 @@
             flex-shrink: 0;
         }
         #restart-btn:active {
-            background: rgba(122, 90, 240, 0.25);
+            background: rgba(255, 107, 107, 0.25);
             transform: scale(0.9);
         }
 
@@ -214,7 +355,7 @@
             height: auto;
             border-radius: 10px;
             background: rgba(0, 0, 20, 0.5);
-            border: 1.5px solid rgba(122, 90, 240, 0.06);
+            border: 1.5px solid rgba(255, 107, 107, 0.06);
             image-rendering: pixelated;
         }
 
@@ -310,8 +451,8 @@
             align-items: center;
             font-weight: 700;
             font-family: 'Orbitron', sans-serif;
-            background: rgba(122, 90, 240, 0.06);
-            border: 1px solid rgba(122, 90, 240, 0.06);
+            background: rgba(255, 107, 107, 0.06);
+            border: 1px solid rgba(255, 107, 107, 0.06);
         }
         #controls button:active {
             transform: scale(0.92);
@@ -381,7 +522,7 @@
         }
 
         /* ============================================
-           VICTORY OVERLAY (Level 100)
+           VICTORY OVERLAY
            ============================================ */
         #victory-overlay {
             position: fixed;
@@ -509,7 +650,7 @@
         }
 
         /* ============================================
-           CONGRATULATIONS OVERLAY (Level up)
+           CONGRATULATIONS OVERLAY
            ============================================ */
         #congrats-overlay {
             position: fixed;
@@ -663,6 +804,22 @@
             }
             #footer .dev-text {
                 font-size: 4px;
+            }
+            #welcome-content {
+                padding: 20px 15px;
+            }
+            #welcome-content .logo-big {
+                font-size: 30px;
+            }
+            #welcome-content .desc {
+                font-size: 8px;
+            }
+            #welcome-content .btn-play {
+                font-size: 13px;
+                padding: 12px 20px;
+            }
+            #welcome-content .features .feat .icon {
+                font-size: 14px;
             }
         }
 
@@ -843,9 +1000,47 @@
 </head>
 <body>
 
+    <!-- Background Space -->
     <canvas id="bg-canvas"></canvas>
 
-    <!-- CONGRATULATIONS OVERLAY (Level up) -->
+    <!-- ============================================
+    WELCOME SCREEN
+    ============================================ -->
+    <div id="welcome-screen">
+        <div id="welcome-content">
+            <div class="logo-big">
+                <span class="m">M</span><span class="rest">OZ</span><span class="highlight">T</span><span class="rest">RIS</span>
+            </div>
+            <div class="tagline">✦ 100 LEVEL CHALLENGE ✦</div>
+            <div class="divider"></div>
+
+            <div class="desc">
+                <span>🔥 Selamat datang di Moztris!</span><br>
+                Game Tetris dengan <span>100 level</span> yang semakin menantang.<br>
+                Susun blok, dapatkan <span>skor tertinggi</span>, dan taklukkan semua level!
+            </div>
+
+            <div class="features">
+                <div class="feat">
+                    <span class="icon">🧩</span>
+                    <span class="label">100 Level</span>
+                </div>
+                <div class="feat">
+                    <span class="icon">⏱️</span>
+                    <span class="label">Timer</span>
+                </div>
+                <div class="feat">
+                    <span class="icon">🏆</span>
+                    <span class="label">Leaderboard</span>
+                </div>
+            </div>
+
+            <button class="btn-play" id="btnPlay">▶ MAIN SEKARANG</button>
+            <div class="version">✦ v2.0 · Developed by AP21 ✦</div>
+        </div>
+    </div>
+
+    <!-- CONGRATULATIONS OVERLAY -->
     <div id="congrats-overlay">
         <div class="main-text">🎉 CONGRATULATIONS! 🎉</div>
         <div class="sub-text">✨ YOU DID IT! ✨</div>
@@ -853,7 +1048,7 @@
         <div class="tap-text">👆 TAP TO CONTINUE</div>
     </div>
 
-    <!-- VICTORY OVERLAY (Level 100) -->
+    <!-- VICTORY OVERLAY -->
     <div id="victory-overlay">
         <div class="main-text">🏆 SELAMAT! 🏆</div>
         <div class="sub-text">✨ ANDA TELAH MENYELESAIKAN 100 LEVEL! ✨</div>
@@ -876,6 +1071,9 @@
         <div class="tap-text">👆 TAP TO PLAY AGAIN</div>
     </div>
 
+    <!-- ============================================
+    GAME
+    ============================================ -->
     <div id="game-wrapper">
         <div id="game">
 
@@ -953,7 +1151,7 @@
 
     <script>
         // ============================================================
-        // LOGO GENERATOR - MOZTRIS
+        // LOGO GENERATOR
         // ============================================================
         function generateLogo() {
             const canvas = document.getElementById('logo-canvas');
@@ -976,7 +1174,6 @@
             ctx.stroke();
             ctx.shadowBlur = 0;
 
-            // Huruf "M" dari blok
             const colors = ['#ff6b6b', '#ffd700', '#ff6b6b', '#ffd700'];
             const blocks = [
                 [0, 0],
@@ -1224,6 +1421,31 @@
             initBackground(); });
 
         // ============================================================
+        // WELCOME SCREEN
+        // ============================================================
+        const welcomeScreen = document.getElementById('welcome-screen');
+
+        document.getElementById('btnPlay').addEventListener('click', () => {
+            welcomeScreen.classList.add('hide');
+            setTimeout(() => {
+                welcomeScreen.style.display = 'none';
+            }, 800);
+            // Start timer ketika game dimulai
+            if (!isTimerRunning && !gameOver) startTimer();
+        });
+
+        // Tap di luar juga bisa (untuk mobile)
+        welcomeScreen.addEventListener('touchstart', (e) => {
+            if (e.target === welcomeScreen || e.target.id === 'welcome-content') {
+                welcomeScreen.classList.add('hide');
+                setTimeout(() => {
+                    welcomeScreen.style.display = 'none';
+                }, 800);
+                if (!isTimerRunning && !gameOver) startTimer();
+            }
+        });
+
+        // ============================================================
         // CONFETTI
         // ============================================================
         function createConfetti(count = 80, colors = ['#ff6b6b', '#ffd700', '#44ddff', '#ff66aa', '#44ff88']) {
@@ -1349,7 +1571,6 @@
             document.getElementById('finalLines').textContent = linesCleared;
             document.getElementById('finalTime').textContent = getTimeString();
 
-            // Confetti besar-besaran
             const victoryColors = ['#ff6b6b', '#ffd700', '#44ddff', '#ff66aa', '#44ff88', '#ff8844'];
             createConfetti(150, victoryColors);
             setTimeout(() => createConfetti(100, victoryColors), 500);
@@ -1661,7 +1882,7 @@
 
         function hardDrop() {
             if (gameOver || !currentPiece || isLevelingUp || isCongratsShowing || isVictoryShowing) return;
-            if (!isTimerRunning) startTimer();
+            if (!isTimerRunning && !welcomeScreen.classList.contains('hide') === false) startTimer();
             let dropRow = currentPiece.row;
             while (isValid(currentPiece, dropRow + 1, currentPiece.col)) {
                 dropRow++;
@@ -1674,7 +1895,7 @@
 
         function movePiece(dCol) {
             if (gameOver || !currentPiece || isLevelingUp || isCongratsShowing || isVictoryShowing) return;
-            if (!isTimerRunning) startTimer();
+            if (!isTimerRunning && !welcomeScreen.classList.contains('hide')) startTimer();
             if (isValid(currentPiece, currentPiece.row, currentPiece.col + dCol)) {
                 currentPiece.col += dCol;
                 render();
@@ -1683,7 +1904,7 @@
 
         function rotatePieceAction() {
             if (gameOver || !currentPiece || isLevelingUp || isCongratsShowing || isVictoryShowing) return;
-            if (!isTimerRunning) startTimer();
+            if (!isTimerRunning && !welcomeScreen.classList.contains('hide')) startTimer();
             const rotated = rotatePiece(currentPiece);
             if (isValid(currentPiece, currentPiece.row, currentPiece.col, rotated)) {
                 currentPiece.blocks = rotated;
@@ -1907,6 +2128,7 @@
         document.addEventListener('keydown', (e) => {
             if (gameOver) { if (e.key === 'r' || e.key === 'R') resetGame(); return; }
             if (isLevelingUp || isCongratsShowing || isVictoryShowing) return;
+            if (!welcomeScreen.classList.contains('hide')) return;
             switch (e.key) {
                 case 'ArrowLeft':
                     e.preventDefault();
@@ -2007,6 +2229,10 @@
         generateLogo();
         resetGame();
         requestAnimationFrame(gameLoop);
+
+        // Tampilkan welcome screen
+        welcomeScreen.classList.remove('hide');
+        welcomeScreen.style.display = 'flex';
     </script>
 </body>
 </html>
