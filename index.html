@@ -1,0 +1,1785 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Tetris Space</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
+        body {
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Orbitron', 'Segoe UI', Arial, sans-serif;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+            position: relative;
+        }
+
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+        }
+
+        #game-wrapper {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+            padding: 8px;
+        }
+
+        #game {
+            background: rgba(5, 5, 20, 0.92);
+            padding: 14px;
+            border-radius: 24px;
+            border: 1.5px solid rgba(122, 90, 240, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 0 60px rgba(122, 90, 240, 0.05), inset 0 0 60px rgba(122, 90, 240, 0.02);
+            backdrop-filter: blur(10px);
+        }
+
+        /* ============================================
+           HEADER
+           ============================================ */
+        #header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2px;
+        }
+
+        /* ---- LOGO ---- */
+        #logo-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        #logo-canvas {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            image-rendering: pixelated;
+            background: #0a0a1a;
+            border: 1.5px solid rgba(122, 90, 240, 0.3);
+            flex-shrink: 0;
+        }
+        #logo-box .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+        #logo-box .logo-text .name {
+            color: #fff;
+            font-size: 14px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            font-family: 'Orbitron', sans-serif;
+        }
+        #logo-box .logo-text .name .highlight {
+            color: #7a5af0;
+        }
+        #logo-box .logo-text .dev {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 7px;
+            letter-spacing: 3px;
+            font-weight: 400;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        #preview-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            background: rgba(0, 0, 20, 0.5);
+            padding: 6px 14px 8px 14px;
+            border-radius: 14px;
+            border: 1px solid rgba(122, 90, 240, 0.1);
+        }
+        #preview-box .label {
+            color: rgba(255, 255, 255, 0.25);
+            font-size: 7px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        canvas#preview {
+            display: block;
+            width: 72px;
+            height: 72px;
+            border-radius: 6px;
+            background: rgba(0, 0, 20, 0.3);
+        }
+
+        /* ============================================
+           STATS
+           ============================================ */
+        #stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr auto;
+            gap: 6px;
+            align-items: center;
+        }
+        #stats .stat {
+            background: rgba(0, 0, 20, 0.4);
+            border-radius: 12px;
+            padding: 6px 4px;
+            text-align: center;
+            border: 1px solid rgba(122, 90, 240, 0.06);
+        }
+        #stats .stat .s-label {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 6px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+        #stats .stat .s-value {
+            font-size: 18px;
+            font-weight: 900;
+            display: block;
+            margin-top: 1px;
+            font-family: 'Orbitron', monospace;
+        }
+        #stats .stat .s-value.gold {
+            color: #ffd700;
+        }
+        #stats .stat .s-value.cyan {
+            color: #44ddff;
+        }
+        #stats .stat .s-value.green {
+            color: #44ff88;
+        }
+        #stats .stat .s-value.pink {
+            color: #ff66aa;
+        }
+
+        #restart-btn {
+            background: rgba(122, 90, 240, 0.1);
+            border: 1px solid rgba(122, 90, 240, 0.1);
+            color: rgba(255, 255, 255, 0.4);
+            border-radius: 12px;
+            width: 44px;
+            height: 44px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+            flex-shrink: 0;
+        }
+        #restart-btn:active {
+            background: rgba(122, 90, 240, 0.3);
+            transform: scale(0.9);
+        }
+
+        /* ============================================
+           BOARD
+           ============================================ */
+        #board-wrap {
+            display: flex;
+            justify-content: center;
+            padding: 0 2px;
+        }
+        canvas#board {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            aspect-ratio: 10 / 20;
+            height: auto;
+            border-radius: 14px;
+            background: rgba(0, 0, 20, 0.6);
+            border: 1.5px solid rgba(122, 90, 240, 0.08);
+            image-rendering: pixelated;
+        }
+
+        /* ============================================
+           PROGRESS
+           ============================================ */
+        #progress-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 4px;
+        }
+        #progress-row .p-label {
+            color: rgba(255, 255, 255, 0.15);
+            font-size: 7px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        #progress-track {
+            flex: 1;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        #progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #7a5af0, #44ddff);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+        #progress-row .p-pct {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 8px;
+            font-weight: 700;
+            min-width: 36px;
+            text-align: right;
+            font-family: 'Orbitron', monospace;
+        }
+
+        /* ============================================
+           STATUS
+           ============================================ */
+        #status {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 8px;
+            text-align: center;
+            min-height: 16px;
+            padding: 2px;
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+
+        /* ============================================
+           CONTROLS
+           ============================================ */
+        #controls {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            width: 100%;
+            max-width: 340px;
+            margin: 0 auto;
+            touch-action: manipulation;
+        }
+        #controls button {
+            border: none;
+            color: #fff;
+            padding: 16px 0;
+            border-radius: 14px;
+            font-size: 22px;
+            cursor: pointer;
+            transition: 0.08s;
+            touch-action: manipulation;
+            min-height: 56px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 700;
+            font-family: 'Orbitron', sans-serif;
+            background: rgba(122, 90, 240, 0.08);
+            border: 1px solid rgba(122, 90, 240, 0.08);
+        }
+        #controls button:active {
+            transform: scale(0.92);
+        }
+
+        #controls .c-left {
+            background: rgba(68, 221, 255, 0.08);
+            border-color: rgba(68, 221, 255, 0.1);
+        }
+        #controls .c-left:active {
+            background: rgba(68, 221, 255, 0.2);
+        }
+        #controls .c-right {
+            background: rgba(68, 221, 255, 0.08);
+            border-color: rgba(68, 221, 255, 0.1);
+        }
+        #controls .c-right:active {
+            background: rgba(68, 221, 255, 0.2);
+        }
+        #controls .c-rotate {
+            background: rgba(255, 100, 200, 0.08);
+            border-color: rgba(255, 100, 200, 0.1);
+        }
+        #controls .c-rotate:active {
+            background: rgba(255, 100, 200, 0.2);
+        }
+        #controls .c-down {
+            background: rgba(255, 200, 50, 0.06);
+            border-color: rgba(255, 200, 50, 0.08);
+        }
+        #controls .c-down:active {
+            background: rgba(255, 200, 50, 0.15);
+        }
+        #controls .c-drop {
+            background: rgba(255, 200, 50, 0.1);
+            border-color: rgba(255, 200, 50, 0.12);
+        }
+        #controls .c-drop:active {
+            background: rgba(255, 200, 50, 0.25);
+        }
+
+        #key-hint {
+            color: rgba(255, 255, 255, 0.04);
+            font-size: 6px;
+            text-align: center;
+            letter-spacing: 2px;
+            font-weight: 400;
+        }
+
+        /* ============================================
+           FOOTER - DEVELOPER
+           ============================================ */
+        #footer {
+            text-align: center;
+            padding-top: 4px;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+        }
+        #footer .dev-text {
+            color: rgba(255, 255, 255, 0.08);
+            font-size: 7px;
+            font-weight: 400;
+            letter-spacing: 4px;
+            font-family: 'Orbitron', sans-serif;
+        }
+        #footer .dev-text .ap {
+            color: rgba(122, 90, 240, 0.3);
+            font-weight: 700;
+        }
+
+        /* ============================================
+           CONGRATULATIONS OVERLAY
+           ============================================ */
+        #congrats-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            background: rgba(0, 0, 0, 0.7);
+        }
+        #congrats-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #congrats-overlay .main-text {
+            font-size: clamp(36px, 10vw, 80px);
+            font-weight: 900;
+            color: #ffd700;
+            text-shadow: 0 0 60px rgba(255, 215, 0, 0.5), 0 0 120px rgba(255, 215, 0, 0.2), 0 0 200px rgba(255, 215, 0, 0.1);
+            animation: congratsPulse 1.5s ease-in-out infinite;
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+            padding: 10px;
+        }
+
+        #congrats-overlay .sub-text {
+            font-size: clamp(16px, 4vw, 32px);
+            color: #fff;
+            font-weight: 400;
+            letter-spacing: 4px;
+            opacity: 0.8;
+            margin-top: 10px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        #congrats-overlay .level-text {
+            font-size: clamp(14px, 3vw, 24px);
+            color: #44ddff;
+            font-weight: 700;
+            margin-top: 8px;
+            letter-spacing: 2px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        #congrats-overlay .tap-text {
+            font-size: clamp(10px, 2vw, 16px);
+            color: rgba(255, 255, 255, 0.3);
+            margin-top: 20px;
+            animation: blink 1s ease-in-out infinite;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 3px;
+        }
+
+        @keyframes congratsPulse {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes blink {
+            0%,
+            100% {
+                opacity: 0.3;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
+        /* ============================================
+           CONFETTI
+           ============================================ */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            pointer-events: none;
+            z-index: 101;
+            border-radius: 2px;
+            animation: confettiFall linear forwards;
+        }
+
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(0) rotate(0deg) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg) scale(0.5);
+                opacity: 0;
+            }
+        }
+
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
+        @media (max-width: 380px) {
+            #game {
+                padding: 10px;
+                gap: 8px;
+                max-width: 340px;
+                border-radius: 18px;
+            }
+            canvas#board {
+                max-width: 240px;
+            }
+            #stats .stat .s-value {
+                font-size: 14px;
+            }
+            canvas#preview {
+                width: 56px;
+                height: 56px;
+            }
+            #preview-box {
+                padding: 4px 10px 6px 10px;
+            }
+            #controls button {
+                padding: 12px 0;
+                font-size: 16px;
+                min-height: 44px;
+                border-radius: 10px;
+            }
+            #controls {
+                gap: 5px;
+                max-width: 280px;
+            }
+            #restart-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 14px;
+            }
+            #stats {
+                gap: 4px;
+            }
+            #stats .stat {
+                padding: 4px 2px;
+                border-radius: 8px;
+            }
+            #stats .stat .s-label {
+                font-size: 5px;
+            }
+            #logo-canvas {
+                width: 32px;
+                height: 32px;
+            }
+            #logo-box .logo-text .name {
+                font-size: 11px;
+            }
+            #logo-box .logo-text .dev {
+                font-size: 6px;
+            }
+        }
+
+        @media (min-width: 381px) and (max-width: 500px) {
+            #game {
+                padding: 14px;
+                gap: 10px;
+                max-width: 400px;
+            }
+            canvas#board {
+                max-width: 280px;
+            }
+            #stats .stat .s-value {
+                font-size: 17px;
+            }
+            canvas#preview {
+                width: 68px;
+                height: 68px;
+            }
+            #controls button {
+                padding: 14px 0;
+                font-size: 20px;
+                min-height: 50px;
+            }
+            #controls {
+                gap: 6px;
+                max-width: 320px;
+            }
+        }
+
+        @media (min-width: 501px) {
+            #game {
+                padding: 20px;
+                gap: 14px;
+                max-width: 480px;
+                border-radius: 28px;
+            }
+            canvas#board {
+                max-width: 340px;
+            }
+            #stats .stat .s-value {
+                font-size: 22px;
+            }
+            canvas#preview {
+                width: 90px;
+                height: 90px;
+            }
+            #controls button {
+                padding: 18px 0;
+                font-size: 26px;
+                min-height: 64px;
+            }
+            #controls {
+                gap: 10px;
+                max-width: 400px;
+            }
+            #restart-btn {
+                width: 52px;
+                height: 52px;
+                font-size: 22px;
+            }
+            #stats .stat .s-label {
+                font-size: 8px;
+            }
+            #logo-canvas {
+                width: 48px;
+                height: 48px;
+            }
+            #logo-box .logo-text .name {
+                font-size: 18px;
+            }
+            #logo-box .logo-text .dev {
+                font-size: 8px;
+            }
+        }
+
+        @media (max-height: 500px) and (orientation: landscape) {
+            #game {
+                padding: 8px;
+                gap: 6px;
+                max-width: 600px;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                border-radius: 16px;
+            }
+            #board-wrap {
+                flex: 1;
+                min-width: 150px;
+                max-width: 250px;
+            }
+            canvas#board {
+                max-width: 100%;
+                max-height: 70vh;
+            }
+            #right-panel {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                flex: 1;
+                min-width: 120px;
+            }
+            #header {
+                flex-direction: column;
+                gap: 4px;
+                align-items: stretch;
+            }
+            #preview-box {
+                padding: 4px 8px;
+                flex-direction: row;
+                gap: 8px;
+                justify-content: center;
+            }
+            #preview-box .label {
+                font-size: 6px;
+            }
+            canvas#preview {
+                width: 40px;
+                height: 40px;
+            }
+            #stats {
+                grid-template-columns: 1fr 1fr;
+                gap: 3px;
+            }
+            #stats .stat .s-value {
+                font-size: 12px;
+            }
+            #stats .stat .s-label {
+                font-size: 5px;
+            }
+            #controls {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 4px;
+                max-width: 100%;
+            }
+            #controls button {
+                padding: 6px 0;
+                font-size: 12px;
+                min-height: 28px;
+                border-radius: 8px;
+            }
+            #restart-btn {
+                width: 30px;
+                height: 30px;
+                font-size: 12px;
+            }
+            #status {
+                font-size: 6px;
+                min-height: 12px;
+            }
+            #progress-row .p-label {
+                font-size: 5px;
+            }
+            #progress-row .p-pct {
+                font-size: 6px;
+                min-width: 28px;
+            }
+            #key-hint {
+                display: none;
+            }
+            #logo-canvas {
+                width: 28px;
+                height: 28px;
+            }
+            #logo-box .logo-text .name {
+                font-size: 9px;
+            }
+            #logo-box .logo-text .dev {
+                font-size: 5px;
+            }
+            #footer .dev-text {
+                font-size: 5px;
+            }
+        }
+
+        @media (max-height: 500px) and (orientation: landscape) and (min-width: 600px) {
+            #game {
+                flex-wrap: nowrap;
+                padding: 12px;
+                gap: 12px;
+                max-width: 90vw;
+            }
+            #board-wrap {
+                flex: 0 0 auto;
+                max-width: 280px;
+            }
+            #right-panel {
+                flex: 1;
+                min-width: 160px;
+            }
+            canvas#board {
+                max-height: 80vh;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background -->
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- CONGRATULATIONS OVERLAY -->
+    <div id="congrats-overlay">
+        <div class="main-text">🎉 CONGRATULATIONS! 🎉</div>
+        <div class="sub-text">✨ YOU DID IT! ✨</div>
+        <div class="level-text" id="congratsLevel">Level 1 Complete!</div>
+        <div class="tap-text">👆 TAP TO CONTINUE</div>
+    </div>
+
+    <div id="game-wrapper">
+        <div id="game">
+
+            <!-- HEADER -->
+            <div id="header">
+                <div id="logo-box">
+                    <canvas id="logo-canvas" width="80" height="80"></canvas>
+                    <div class="logo-text">
+                        <div class="name">TETRIS <span class="highlight">SPACE</span></div>
+                        <div class="dev">✦ DEVELOPED BY <span style="color:rgba(122,90,240,0.4);font-weight:700;">AP21</span> ✦</div>
+                    </div>
+                </div>
+                <div id="preview-box">
+                    <span class="label">▶ BERIKUTNYA</span>
+                    <canvas id="preview" width="120" height="120"></canvas>
+                </div>
+            </div>
+
+            <div id="right-panel">
+
+                <!-- STATS -->
+                <div id="stats">
+                    <div class="stat">
+                        <span class="s-label">🏆 LV</span>
+                        <span class="s-value gold" id="levelDisplay">1</span>
+                    </div>
+                    <div class="stat">
+                        <span class="s-label">⭐ SCORE</span>
+                        <span class="s-value cyan" id="scoreDisplay">0</span>
+                    </div>
+                    <div class="stat">
+                        <span class="s-label">📊 LINES</span>
+                        <span class="s-value green" id="linesDisplay">0</span>
+                    </div>
+                    <div class="stat">
+                        <span class="s-label">🎯 TARGET</span>
+                        <span class="s-value pink" id="targetDisplay">600</span>
+                    </div>
+                    <button id="restart-btn">🔄</button>
+                </div>
+
+                <!-- BOARD -->
+                <div id="board-wrap">
+                    <canvas id="board" width="300" height="600"></canvas>
+                </div>
+
+                <!-- PROGRESS -->
+                <div id="progress-row">
+                    <span class="p-label">Progress</span>
+                    <div id="progress-track">
+                        <div id="progress-bar"></div>
+                    </div>
+                    <span class="p-pct" id="progress-text">0%</span>
+                </div>
+
+                <!-- STATUS -->
+                <div id="status">🚀 Tap tombol untuk main</div>
+
+                <!-- CONTROLS -->
+                <div id="controls">
+                    <button id="btnLeft" class="c-left">◀</button>
+                    <button id="btnRotate" class="c-rotate">↻</button>
+                    <button id="btnRight" class="c-right">▶</button>
+                    <button id="btnDown" class="c-down">▼</button>
+                    <button id="btnDrop" class="c-drop">⬇⬇</button>
+                </div>
+
+                <div id="key-hint">← → geser · ↑ putar · ↓ turun · Space drop</div>
+
+                <!-- FOOTER -->
+                <div id="footer">
+                    <div class="dev-text">✦ DEVELOPED BY <span class="ap">AP21</span> ✦</div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // LOGO GENERATOR
+        // ============================================================
+        function generateLogo() {
+            const canvas = document.getElementById('logo-canvas');
+            const ctx = canvas.getContext('2d');
+
+            // Background
+            const grad = ctx.createLinearGradient(0, 0, 80, 80);
+            grad.addColorStop(0, '#0a0a2a');
+            grad.addColorStop(1, '#1a0a3a');
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.roundRect(0, 0, 80, 80, 12);
+            ctx.fill();
+
+            // Border glow
+            ctx.shadowColor = 'rgba(122,90,240,0.3)';
+            ctx.shadowBlur = 15;
+            ctx.strokeStyle = 'rgba(122,90,240,0.3)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.roundRect(1, 1, 78, 78, 11);
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            // TETRIS block "T"
+            const colors = ['#44ddff', '#ffd700', '#ff66aa', '#44ff88'];
+            const blocks = [
+                [0, 0],
+                [1, 0],
+                [2, 0],
+                [1, 1],
+                [1, 2]
+            ];
+            const size = 10;
+            const offsetX = 15;
+            const offsetY = 15;
+
+            blocks.forEach((pos, i) => {
+                const x = offsetX + pos[0] * (size + 2);
+                const y = offsetY + pos[1] * (size + 2);
+                ctx.fillStyle = colors[i % colors.length];
+                ctx.shadowColor = colors[i % colors.length] + '40';
+                ctx.shadowBlur = 8;
+                ctx.beginPath();
+                ctx.roundRect(x, y, size, size, 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                // Highlight
+                ctx.fillStyle = 'rgba(255,255,255,0.15)';
+                ctx.fillRect(x + 2, y + 2, size - 4, 3);
+            });
+
+            // Bintang kecil
+            for (let i = 0; i < 6; i++) {
+                const x = 5 + Math.random() * 70;
+                const y = 5 + Math.random() * 70;
+                const s = Math.random() * 1.5 + 0.5;
+                ctx.fillStyle = 'rgba(255,255,255,0.15)';
+                ctx.beginPath();
+                ctx.arc(x, y, s, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Tulisan "AP21" kecil di bawah
+            ctx.fillStyle = 'rgba(122,90,240,0.2)';
+            ctx.font = '6px Orbitron, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText('AP21', 40, 76);
+        }
+
+        // ============================================================
+        // BACKGROUND SPACE
+        // ============================================================
+        const bgCanvas = document.getElementById('bg-canvas');
+        const bgCtx = bgCanvas.getContext('2d');
+
+        function resizeBg() {
+            bgCanvas.width = window.innerWidth;
+            bgCanvas.height = window.innerHeight;
+        }
+        resizeBg();
+        window.addEventListener('resize', resizeBg);
+
+        let stars = [],
+            ufos = [],
+            planets = [];
+
+        function initBackground() {
+            stars = [];
+            ufos = [];
+            planets = [];
+            for (let i = 0; i < 200; i++) {
+                stars.push({
+                    x: Math.random() * bgCanvas.width,
+                    y: Math.random() * bgCanvas.height,
+                    size: Math.random() * 2 + 0.5,
+                    speed: Math.random() * 0.4 + 0.1,
+                    alpha: Math.random() * 0.8 + 0.2,
+                    twinkleSpeed: Math.random() * 0.02 + 0.01
+                });
+            }
+            for (let i = 0; i < 3; i++) {
+                planets.push({
+                    x: Math.random() * bgCanvas.width,
+                    y: Math.random() * bgCanvas.height,
+                    radius: Math.random() * 25 + 12,
+                    speed: (Math.random() - 0.5) * 0.3,
+                    color: ['#ffd700', '#44ddff', '#ff8844', '#ff66aa'][i % 4],
+                    phase: Math.random() * Math.PI * 2
+                });
+            }
+            for (let i = 0; i < 2; i++) {
+                ufos.push({
+                    x: Math.random() * bgCanvas.width,
+                    y: Math.random() * bgCanvas.height * 0.5 + 50,
+                    speed: (Math.random() - 0.5) * 0.8,
+                    size: Math.random() * 18 + 12,
+                    phase: Math.random() * Math.PI * 2
+                });
+            }
+        }
+
+        function drawBackground() {
+            bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+
+            const grad = bgCtx.createRadialGradient(
+                bgCanvas.width / 2, bgCanvas.height / 2, 0,
+                bgCanvas.width / 2, bgCanvas.height / 2, bgCanvas.width / 2
+            );
+            grad.addColorStop(0, '#0a0a2a');
+            grad.addColorStop(0.5, '#050515');
+            grad.addColorStop(1, '#000005');
+            bgCtx.fillStyle = grad;
+            bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+
+            for (const star of stars) {
+                star.x -= star.speed * 0.5;
+                star.alpha += Math.sin(Date.now() * star.twinkleSpeed) * 0.01;
+                star.alpha = Math.max(0.2, Math.min(1, star.alpha));
+                if (star.x < 0) { star.x = bgCanvas.width;
+                    star.y = Math.random() * bgCanvas.height; }
+                bgCtx.beginPath();
+                bgCtx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                bgCtx.fillStyle = `rgba(255,255,255,${star.alpha})`;
+                bgCtx.fill();
+                if (star.size > 1.5) {
+                    bgCtx.shadowColor = 'rgba(255,255,255,0.05)';
+                    bgCtx.shadowBlur = 8;
+                    bgCtx.beginPath();
+                    bgCtx.arc(star.x, star.y, star.size * 2.5, 0, Math.PI * 2);
+                    bgCtx.fillStyle = `rgba(255,255,255,${star.alpha * 0.04})`;
+                    bgCtx.fill();
+                    bgCtx.shadowBlur = 0;
+                }
+            }
+
+            for (const planet of planets) {
+                planet.y += Math.sin(Date.now() * 0.0003 + planet.phase) * 0.2;
+                planet.x += planet.speed;
+                if (planet.x > bgCanvas.width + 100) planet.x = -100;
+                if (planet.x < -100) planet.x = bgCanvas.width + 100;
+
+                const grad2 = bgCtx.createRadialGradient(planet.x, planet.y, 0, planet.x, planet.y, planet.radius * 3);
+                grad2.addColorStop(0, planet.color + '30');
+                grad2.addColorStop(1, 'transparent');
+                bgCtx.fillStyle = grad2;
+                bgCtx.beginPath();
+                bgCtx.arc(planet.x, planet.y, planet.radius * 3, 0, Math.PI * 2);
+                bgCtx.fill();
+
+                bgCtx.shadowColor = planet.color + '40';
+                bgCtx.shadowBlur = 25;
+                bgCtx.beginPath();
+                bgCtx.arc(planet.x, planet.y, planet.radius, 0, Math.PI * 2);
+                bgCtx.fillStyle = planet.color;
+                bgCtx.fill();
+
+                bgCtx.shadowBlur = 0;
+                for (let i = 0; i < 3; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const dist = Math.random() * planet.radius * 0.6;
+                    const cx = planet.x + Math.cos(angle) * dist;
+                    const cy = planet.y + Math.sin(angle) * dist;
+                    bgCtx.beginPath();
+                    bgCtx.arc(cx, cy, planet.radius * 0.15, 0, Math.PI * 2);
+                    bgCtx.fillStyle = 'rgba(0,0,0,0.2)';
+                    bgCtx.fill();
+                }
+                bgCtx.shadowBlur = 0;
+                bgCtx.beginPath();
+                bgCtx.arc(planet.x - planet.radius * 0.3, planet.y - planet.radius * 0.3, planet.radius * 0.2, 0, Math.PI *
+                    2);
+                bgCtx.fillStyle = 'rgba(255,255,255,0.08)';
+                bgCtx.fill();
+                bgCtx.shadowBlur = 0;
+            }
+
+            for (const ufo of ufos) {
+                ufo.x += Math.sin(Date.now() * 0.001 + ufo.phase) * 0.5;
+                ufo.y += Math.cos(Date.now() * 0.0015 + ufo.phase * 2) * 0.3;
+
+                const lightPhase = Date.now() * 0.005 + ufo.phase;
+                const lightIntensity = (Math.sin(lightPhase) + 1) / 2;
+
+                bgCtx.shadowColor = `rgba(0,255,200,${lightIntensity * 0.2})`;
+                bgCtx.shadowBlur = 15;
+                bgCtx.beginPath();
+                bgCtx.ellipse(ufo.x, ufo.y, ufo.size, ufo.size * 0.3, 0, 0, Math.PI * 2);
+                bgCtx.fillStyle = `rgba(100,200,255,${0.15 + lightIntensity * 0.15})`;
+                bgCtx.fill();
+                bgCtx.strokeStyle = `rgba(100,200,255,${0.2 + lightIntensity * 0.2})`;
+                bgCtx.lineWidth = 1.5;
+                bgCtx.stroke();
+
+                bgCtx.shadowBlur = 0;
+                bgCtx.beginPath();
+                bgCtx.arc(ufo.x, ufo.y - ufo.size * 0.1, ufo.size * 0.3, 0, Math.PI * 2);
+                bgCtx.fillStyle = `rgba(200,255,255,${0.08 + lightIntensity * 0.15})`;
+                bgCtx.fill();
+
+                for (let i = 0; i < 5; i++) {
+                    const angle = (i / 5) * Math.PI * 2 + Date.now() * 0.002;
+                    const lx = ufo.x + Math.cos(angle) * ufo.size * 0.7;
+                    const ly = ufo.y + Math.sin(angle) * ufo.size * 0.3 + ufo.size * 0.2;
+                    bgCtx.beginPath();
+                    bgCtx.arc(lx, ly, 1.5 + lightIntensity * 2.5, 0, Math.PI * 2);
+                    bgCtx.fillStyle = `rgba(0,255,200,${0.15 + lightIntensity * 0.4})`;
+                    bgCtx.fill();
+                }
+
+                bgCtx.shadowBlur = 0;
+                const grad3 = bgCtx.createRadialGradient(ufo.x, ufo.y + ufo.size * 0.5, 0, ufo.x, ufo.y + ufo.size * 0.5,
+                    ufo.size * 2);
+                grad3.addColorStop(0, `rgba(0,255,200,${0.03 * lightIntensity})`);
+                grad3.addColorStop(1, 'transparent');
+                bgCtx.fillStyle = grad3;
+                bgCtx.beginPath();
+                bgCtx.moveTo(ufo.x - ufo.size * 0.5, ufo.y + ufo.size * 0.3);
+                bgCtx.lineTo(ufo.x + ufo.size * 0.5, ufo.y + ufo.size * 0.3);
+                bgCtx.lineTo(ufo.x + ufo.size * 2, ufo.y + ufo.size * 3);
+                bgCtx.lineTo(ufo.x - ufo.size * 2, ufo.y + ufo.size * 3);
+                bgCtx.closePath();
+                bgCtx.fill();
+                bgCtx.shadowBlur = 0;
+            }
+
+            for (let i = 0; i < 3; i++) {
+                const nx = (bgCanvas.width / 3) * i + Math.sin(Date.now() * 0.0001 + i) * 100;
+                const ny = (bgCanvas.height / 3) + Math.cos(Date.now() * 0.00015 + i * 2) * 50;
+                const grad4 = bgCtx.createRadialGradient(nx, ny, 0, nx, ny, 200);
+                const colors = ['rgba(122,90,240,0.03)', 'rgba(68,221,255,0.03)', 'rgba(255,68,136,0.02)'];
+                grad4.addColorStop(0, colors[i % 3]);
+                grad4.addColorStop(1, 'transparent');
+                bgCtx.fillStyle = grad4;
+                bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+            }
+
+            requestAnimationFrame(drawBackground);
+        }
+
+        initBackground();
+        drawBackground();
+        window.addEventListener('resize', () => { resizeBg();
+            initBackground(); });
+
+        // ============================================================
+        // CONFETTI SYSTEM
+        // ============================================================
+        function createConfetti(count = 80) {
+            const colors = ['#ffd700', '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ff6b6b', '#ffeaa7', '#dfe6e9', '#a29bfe',
+                '#fd79a8'
+            ];
+            for (let i = 0; i < count; i++) {
+                const el = document.createElement('div');
+                el.className = 'confetti';
+                const size = Math.random() * 10 + 5;
+                const isCircle = Math.random() > 0.5;
+                el.style.width = isCircle ? size + 'px' : size * 0.5 + 'px';
+                el.style.height = isCircle ? size + 'px' : size * 1.5 + 'px';
+                el.style.background = colors[Math.floor(Math.random() * colors.length)];
+                el.style.borderRadius = isCircle ? '50%' : '2px';
+                el.style.left = Math.random() * 100 + '%';
+                el.style.top = '-10px';
+                el.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+                el.style.animationDelay = (Math.random() * 0.5) + 's';
+                el.style.transform = `rotate(${Math.random() * 360}deg)`;
+                document.body.appendChild(el);
+                setTimeout(() => el.remove(), 4000);
+            }
+        }
+
+        // ============================================================
+        // CONGRATULATIONS
+        // ============================================================
+        let isCongratsShowing = false;
+        let pendingLevelUp = false;
+
+        function showCongratulations(level) {
+            if (isCongratsShowing) return;
+            isCongratsShowing = true;
+
+            const overlay = document.getElementById('congrats-overlay');
+            document.getElementById('congratsLevel').textContent = `🎯 Level ${level} Complete! 🎯`;
+
+            createConfetti(100);
+            setTimeout(() => createConfetti(60), 300);
+            setTimeout(() => createConfetti(40), 600);
+
+            overlay.classList.add('show');
+
+            const tapToContinue = () => {
+                overlay.classList.remove('show');
+                isCongratsShowing = false;
+                document.removeEventListener('click', tapToContinue);
+                document.removeEventListener('touchstart', tapToContinue);
+
+                if (pendingLevelUp) {
+                    pendingLevelUp = false;
+                    continueToNextLevel();
+                }
+            };
+
+            document.addEventListener('click', tapToContinue);
+            document.addEventListener('touchstart', tapToContinue);
+
+            setTimeout(() => {
+                if (isCongratsShowing) {
+                    overlay.classList.remove('show');
+                    isCongratsShowing = false;
+                    document.removeEventListener('click', tapToContinue);
+                    document.removeEventListener('touchstart', tapToContinue);
+                    if (pendingLevelUp) {
+                        pendingLevelUp = false;
+                        continueToNextLevel();
+                    }
+                }
+            }, 5000);
+        }
+
+        // ============================================================
+        // TETRIS GAME
+        // ============================================================
+
+        const COLS = 10;
+        const ROWS = 20;
+        const BLOCK_SIZE = 28;
+        const GAP = 1;
+
+        const boardCanvas = document.getElementById('board');
+        const boardCtx = boardCanvas.getContext('2d');
+        const previewCanvas = document.getElementById('preview');
+        const previewCtx = previewCanvas.getContext('2d');
+
+        const COLORS = {
+            I: '#44ddff',
+            O: '#ffdd44',
+            T: '#aa44ff',
+            S: '#44ff66',
+            Z: '#ff4444',
+            L: '#ff8844',
+            J: '#4488ff'
+        };
+
+        const SHAPES = {
+            I: { blocks: [
+                    [0, 0, 0, 0],
+                    [1, 1, 1, 1],
+                    [0, 0, 0, 0],
+                    [0, 0, 0, 0]
+                ], color: 'I' },
+            O: { blocks: [
+                    [1, 1],
+                    [1, 1]
+                ], color: 'O' },
+            T: { blocks: [
+                    [0, 1, 0],
+                    [1, 1, 1],
+                    [0, 0, 0]
+                ], color: 'T' },
+            S: { blocks: [
+                    [0, 1, 1],
+                    [1, 1, 0],
+                    [0, 0, 0]
+                ], color: 'S' },
+            Z: { blocks: [
+                    [1, 1, 0],
+                    [0, 1, 1],
+                    [0, 0, 0]
+                ], color: 'Z' },
+            L: { blocks: [
+                    [0, 0, 1],
+                    [1, 1, 1],
+                    [0, 0, 0]
+                ], color: 'L' },
+            J: { blocks: [
+                    [1, 0, 0],
+                    [1, 1, 1],
+                    [0, 0, 0]
+                ], color: 'J' }
+        };
+
+        const SHAPE_NAMES = ['I', 'O', 'T', 'S', 'Z', 'L', 'J'];
+
+        const LEVEL_TARGETS = [
+            0,
+            600, // Level 1
+            1200, // Level 2
+            2000, // Level 3
+            3000, // Level 4
+            4500, // Level 5
+            6500, // Level 6
+            9000, // Level 7
+            12000, // Level 8
+            16000, // Level 9
+            21000, // Level 10
+            27000, // Level 11
+            34000, // Level 12
+            42000, // Level 13
+            51000, // Level 14
+            61000, // Level 15
+            72000, // Level 16
+            84000, // Level 17
+            97000, // Level 18
+            111000, // Level 19
+            126000 // Level 20
+        ];
+
+        // ============================================================
+        // VARIABLE GAME
+        // ============================================================
+        let grid = [];
+        let currentPiece = null;
+        let nextPiece = null;
+        let score = 0;
+        let linesCleared = 0;
+        let level = 1;
+        let gameOver = false;
+        let dropInterval = 1000;
+        let lastDrop = 0;
+        let targetScore = LEVEL_TARGETS[1] || 600;
+        let isLevelingUp = false;
+
+        // ============================================================
+        // FUNGSI UTAMA
+        // ============================================================
+
+        function createGrid() {
+            grid = [];
+            for (let r = 0; r < ROWS; r++) {
+                grid[r] = [];
+                for (let c = 0; c < COLS; c++) {
+                    grid[r][c] = null;
+                }
+            }
+        }
+
+        function randomPiece() {
+            const name = SHAPE_NAMES[Math.floor(Math.random() * SHAPE_NAMES.length)];
+            const shape = SHAPES[name];
+            return {
+                name: name,
+                blocks: shape.blocks.map(row => [...row]),
+                color: shape.color,
+                row: 0,
+                col: Math.floor((COLS - shape.blocks[0].length) / 2)
+            };
+        }
+
+        function rotatePiece(piece) {
+            const n = piece.blocks.length;
+            const rotated = [];
+            for (let r = 0; r < n; r++) {
+                rotated[r] = [];
+                for (let c = 0; c < n; c++) {
+                    rotated[r][c] = piece.blocks[n - 1 - c][r];
+                }
+            }
+            return rotated;
+        }
+
+        function isValid(piece, row, col, blocks) {
+            const b = blocks || piece.blocks;
+            for (let r = 0; r < b.length; r++) {
+                for (let c = 0; c < b[r].length; c++) {
+                    if (b[r][c]) {
+                        const newR = row + r;
+                        const newC = col + c;
+                        if (newR >= ROWS || newC < 0 || newC >= COLS || newR < 0) return false;
+                        if (newR >= 0 && grid[newR][newC] !== null) return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        function lockPiece() {
+            const p = currentPiece;
+            for (let r = 0; r < p.blocks.length; r++) {
+                for (let c = 0; c < p.blocks[r].length; c++) {
+                    if (p.blocks[r][c]) {
+                        const newR = p.row + r;
+                        const newC = p.col + c;
+                        if (newR < 0) {
+                            gameOver = true;
+                            document.getElementById('status').textContent = '💀 GAME OVER!';
+                            return;
+                        }
+                        grid[newR][newC] = p.color;
+                    }
+                }
+            }
+
+            clearLines();
+            checkLevelUp();
+
+            currentPiece = nextPiece;
+            nextPiece = randomPiece();
+            drawPreview();
+
+            if (!isValid(currentPiece, currentPiece.row, currentPiece.col)) {
+                gameOver = true;
+                document.getElementById('status').textContent = '💀 GAME OVER!';
+            }
+
+            updateUI();
+            render();
+        }
+
+        function clearLines() {
+            let cleared = 0;
+            for (let r = ROWS - 1; r >= 0; r--) {
+                let full = true;
+                for (let c = 0; c < COLS; c++) {
+                    if (grid[r][c] === null) { full = false; break; }
+                }
+                if (full) {
+                    grid.splice(r, 1);
+                    grid.unshift(new Array(COLS).fill(null));
+                    cleared++;
+                    r++;
+                }
+            }
+
+            if (cleared > 0) {
+                const points = [0, 100, 300, 500, 800];
+                const addScore = points[Math.min(cleared, 4)] * level;
+                score += addScore;
+                linesCleared += cleared;
+                updateUI();
+                showPopup(`+${addScore} 🔥`);
+            }
+        }
+
+        function continueToNextLevel() {
+            level++;
+            targetScore = LEVEL_TARGETS[level] || 2000 * (level + 1);
+            dropInterval = Math.max(80, 1000 - (level - 1) * 40);
+
+            createGrid();
+            currentPiece = randomPiece();
+            nextPiece = randomPiece();
+            drawPreview();
+
+            if (!isValid(currentPiece, currentPiece.row, currentPiece.col)) {
+                gameOver = true;
+                document.getElementById('status').textContent = '💀 GAME OVER!';
+            }
+
+            document.getElementById('status').textContent = `🚀 LEVEL ${level}! Target: ${formatNumber(targetScore)}`;
+            setTimeout(() => {
+                if (!gameOver) document.getElementById('status').textContent = '🚀 Tap tombol untuk main';
+            }, 2000);
+
+            updateUI();
+            render();
+            isLevelingUp = false;
+        }
+
+        function checkLevelUp() {
+            if (isLevelingUp) return;
+            if (level >= 20) return;
+
+            if (score >= LEVEL_TARGETS[level]) {
+                isLevelingUp = true;
+                showCongratulations(level);
+                pendingLevelUp = true;
+                updateUI();
+            }
+        }
+
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+
+        function showPopup(text) {
+            const popup = document.createElement('div');
+            popup.style.cssText = `
+                        position:fixed;left:50%;top:40%;transform:translateX(-50%);
+                        color:#ffd700;font-size:clamp(24px,5vw,36px);font-weight:bold;
+                        text-shadow:0 0 30px rgba(255,215,0,0.5);
+                        font-family:Orbitron,sans-serif;pointer-events:none;z-index:100;
+                        transition:all 0.8s ease;opacity:1
+                    `;
+            popup.textContent = text;
+            document.body.appendChild(popup);
+            setTimeout(() => {
+                popup.style.top = '30%';
+                popup.style.opacity = '0';
+                setTimeout(() => popup.remove(), 800);
+            }, 100);
+        }
+
+        // ============================================================
+        // DROP & MOVE
+        // ============================================================
+
+        function hardDrop() {
+            if (gameOver || !currentPiece || isLevelingUp || isCongratsShowing) return;
+            let dropRow = currentPiece.row;
+            while (isValid(currentPiece, dropRow + 1, currentPiece.col)) {
+                dropRow++;
+            }
+            currentPiece.row = dropRow;
+            lockPiece();
+            render();
+            updateUI();
+        }
+
+        function movePiece(dCol) {
+            if (gameOver || !currentPiece || isLevelingUp || isCongratsShowing) return;
+            if (isValid(currentPiece, currentPiece.row, currentPiece.col + dCol)) {
+                currentPiece.col += dCol;
+                render();
+            }
+        }
+
+        function rotatePieceAction() {
+            if (gameOver || !currentPiece || isLevelingUp || isCongratsShowing) return;
+            const rotated = rotatePiece(currentPiece);
+            if (isValid(currentPiece, currentPiece.row, currentPiece.col, rotated)) {
+                currentPiece.blocks = rotated;
+                render();
+            } else {
+                if (isValid(currentPiece, currentPiece.row, currentPiece.col + 1, rotated)) {
+                    currentPiece.blocks = rotated;
+                    currentPiece.col += 1;
+                    render();
+                } else if (isValid(currentPiece, currentPiece.row, currentPiece.col - 1, rotated)) {
+                    currentPiece.blocks = rotated;
+                    currentPiece.col -= 1;
+                    render();
+                }
+            }
+        }
+
+        // ============================================================
+        // RENDER
+        // ============================================================
+
+        function render() {
+            boardCtx.clearRect(0, 0, boardCanvas.width, boardCanvas.height);
+
+            const bs = BLOCK_SIZE;
+            const g = GAP;
+
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    const x = c * (bs + g) + g;
+                    const y = r * (bs + g) + g;
+                    if (grid[r][c]) {
+                        const color = grid[r][c];
+                        boardCtx.fillStyle = COLORS[color];
+                        boardCtx.beginPath();
+                        boardCtx.roundRect(x, y, bs, bs, 3);
+                        boardCtx.fill();
+                        boardCtx.fillStyle = 'rgba(255,255,255,0.2)';
+                        boardCtx.fillRect(x + 3, y + 3, bs - 6, 4);
+                        boardCtx.fillStyle = 'rgba(0,0,0,0.2)';
+                        boardCtx.fillRect(x + 3, y + bs - 4, bs - 6, 2);
+                    } else {
+                        boardCtx.fillStyle = 'rgba(255,255,255,0.02)';
+                        boardCtx.beginPath();
+                        boardCtx.roundRect(x, y, bs, bs, 3);
+                        boardCtx.fill();
+                    }
+                }
+            }
+
+            if (currentPiece && !gameOver && !isLevelingUp) {
+                const p = currentPiece;
+                for (let r = 0; r < p.blocks.length; r++) {
+                    for (let c = 0; c < p.blocks[r].length; c++) {
+                        if (p.blocks[r][c]) {
+                            const x = (p.col + c) * (bs + g) + g;
+                            const y = (p.row + r) * (bs + g) + g;
+                            const color = p.color;
+                            boardCtx.shadowColor = 'rgba(122,90,240,0.2)';
+                            boardCtx.shadowBlur = 10;
+                            boardCtx.fillStyle = COLORS[color];
+                            boardCtx.beginPath();
+                            boardCtx.roundRect(x, y, bs, bs, 3);
+                            boardCtx.fill();
+                            boardCtx.shadowBlur = 0;
+                            boardCtx.fillStyle = 'rgba(255,255,255,0.25)';
+                            boardCtx.fillRect(x + 3, y + 3, bs - 6, 4);
+                            boardCtx.fillStyle = 'rgba(0,0,0,0.2)';
+                            boardCtx.fillRect(x + 3, y + bs - 4, bs - 6, 2);
+                        }
+                    }
+                }
+
+                let ghostRow = p.row;
+                while (isValid(p, ghostRow + 1, p.col)) { ghostRow++; }
+                if (ghostRow !== p.row) {
+                    for (let r = 0; r < p.blocks.length; r++) {
+                        for (let c = 0; c < p.blocks[r].length; c++) {
+                            if (p.blocks[r][c]) {
+                                const x = (p.col + c) * (bs + g) + g;
+                                const y = (ghostRow + r) * (bs + g) + g;
+                                boardCtx.fillStyle = 'rgba(255,255,255,0.06)';
+                                boardCtx.beginPath();
+                                boardCtx.roundRect(x, y, bs, bs, 3);
+                                boardCtx.fill();
+                                boardCtx.strokeStyle = 'rgba(255,255,255,0.12)';
+                                boardCtx.lineWidth = 1;
+                                boardCtx.setLineDash([2, 3]);
+                                boardCtx.beginPath();
+                                boardCtx.roundRect(x, y, bs, bs, 3);
+                                boardCtx.stroke();
+                                boardCtx.setLineDash([]);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (gameOver) {
+                boardCtx.fillStyle = 'rgba(0,0,0,0.7)';
+                boardCtx.fillRect(0, 0, boardCanvas.width, boardCanvas.height);
+                boardCtx.fillStyle = '#ff4444';
+                boardCtx.font = 'bold 26px Orbitron, Arial';
+                boardCtx.textAlign = 'center';
+                boardCtx.textBaseline = 'middle';
+                boardCtx.fillText('GAME OVER', boardCanvas.width / 2, boardCanvas.height / 2 - 15);
+                boardCtx.fillStyle = 'rgba(255,255,255,0.3)';
+                boardCtx.font = '12px Orbitron, Arial';
+                boardCtx.fillText('Tap Restart', boardCanvas.width / 2, boardCanvas.height / 2 + 30);
+            }
+
+            const progress = Math.min(100, (score / targetScore) * 100);
+            document.getElementById('progress-bar').style.width = Math.min(100, progress) + '%';
+            document.getElementById('progress-text').textContent = Math.floor(progress) + '%';
+        }
+
+        function drawPreview() {
+            previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+            if (!nextPiece) return;
+
+            const p = nextPiece;
+            const bs = 22,
+                g = 2;
+            const cols = p.blocks[0].length,
+                rows = p.blocks.length;
+            const ox = (previewCanvas.width - cols * (bs + g)) / 2;
+            const oy = (previewCanvas.height - rows * (bs + g)) / 2;
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    if (p.blocks[r][c]) {
+                        const x = ox + c * (bs + g);
+                        const y = oy + r * (bs + g);
+                        const color = p.color;
+                        previewCtx.fillStyle = COLORS[color];
+                        previewCtx.beginPath();
+                        previewCtx.roundRect(x, y, bs, bs, 4);
+                        previewCtx.fill();
+                        previewCtx.fillStyle = 'rgba(255,255,255,0.2)';
+                        previewCtx.fillRect(x + 3, y + 3, bs - 6, 4);
+                        previewCtx.fillStyle = 'rgba(0,0,0,0.15)';
+                        previewCtx.fillRect(x + 3, y + bs - 4, bs - 6, 2);
+                    }
+                }
+            }
+        }
+
+        // ============================================================
+        // UI HELPERS
+        // ============================================================
+
+        function updateUI() {
+            document.getElementById('levelDisplay').textContent = level;
+            document.getElementById('scoreDisplay').textContent = formatNumber(score);
+            document.getElementById('linesDisplay').textContent = linesCleared;
+            document.getElementById('targetDisplay').textContent = formatNumber(targetScore);
+            const progress = Math.min(100, (score / targetScore) * 100);
+            document.getElementById('progress-bar').style.width = Math.min(100, progress) + '%';
+            document.getElementById('progress-text').textContent = Math.floor(progress) + '%';
+        }
+
+        // ============================================================
+        // GAME LOOP
+        // ============================================================
+
+        function gameLoop(time) {
+            if (!gameOver && currentPiece && !isLevelingUp && !isCongratsShowing) {
+                if (time - lastDrop > dropInterval) {
+                    if (isValid(currentPiece, currentPiece.row + 1, currentPiece.col)) {
+                        currentPiece.row++;
+                        render();
+                    } else {
+                        lockPiece();
+                        render();
+                        updateUI();
+                    }
+                    lastDrop = time;
+                }
+            }
+            requestAnimationFrame(gameLoop);
+        }
+
+        // ============================================================
+        // RESET
+        // ============================================================
+
+        function resetGame() {
+            createGrid();
+            score = 0;
+            linesCleared = 0;
+            level = 1;
+            gameOver = false;
+            dropInterval = 1000;
+            lastDrop = 0;
+            targetScore = LEVEL_TARGETS[1] || 600;
+            isLevelingUp = false;
+            isCongratsShowing = false;
+            pendingLevelUp = false;
+
+            document.getElementById('congrats-overlay').classList.remove('show');
+
+            currentPiece = randomPiece();
+            nextPiece = randomPiece();
+            drawPreview();
+
+            updateUI();
+            render();
+            document.getElementById('status').textContent = '🚀 Level 1! Target: ' + formatNumber(targetScore);
+            document.getElementById('progress-bar').style.width = '0%';
+            document.getElementById('progress-text').textContent = '0%';
+        }
+
+        // ============================================================
+        // EVENT KEYBOARD
+        // ============================================================
+
+        document.addEventListener('keydown', (e) => {
+            if (gameOver) { if (e.key === 'r' || e.key === 'R') resetGame(); return; }
+            if (isLevelingUp || isCongratsShowing) return;
+            switch (e.key) {
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    movePiece(-1);
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    movePiece(1);
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    if (isValid(currentPiece, currentPiece.row + 1, currentPiece.col)) {
+                        currentPiece.row++;
+                        render();
+                        lastDrop = performance.now();
+                    }
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    rotatePieceAction();
+                    break;
+                case ' ':
+                    e.preventDefault();
+                    hardDrop();
+                    break;
+                case 'r':
+                case 'R':
+                    resetGame();
+                    break;
+            }
+        });
+
+        // ============================================================
+        // EVENT TOMBOL (MOBILE)
+        // ============================================================
+
+        document.getElementById('btnLeft').addEventListener('touchstart', (e) => { e.preventDefault();
+            movePiece(-1); });
+        document.getElementById('btnLeft').addEventListener('mousedown', () => movePiece(-1));
+
+        document.getElementById('btnRight').addEventListener('touchstart', (e) => { e.preventDefault();
+            movePiece(1); });
+        document.getElementById('btnRight').addEventListener('mousedown', () => movePiece(1));
+
+        document.getElementById('btnRotate').addEventListener('touchstart', (e) => { e.preventDefault();
+            rotatePieceAction(); });
+        document.getElementById('btnRotate').addEventListener('mousedown', rotatePieceAction);
+
+        document.getElementById('btnDown').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (isValid(currentPiece, currentPiece.row + 1, currentPiece.col)) {
+                currentPiece.row++;
+                render();
+                lastDrop = performance.now();
+            }
+        });
+        document.getElementById('btnDown').addEventListener('mousedown', () => {
+            if (isValid(currentPiece, currentPiece.row + 1, currentPiece.col)) {
+                currentPiece.row++;
+                render();
+                lastDrop = performance.now();
+            }
+        });
+
+        document.getElementById('btnDrop').addEventListener('touchstart', (e) => { e.preventDefault();
+            hardDrop(); });
+        document.getElementById('btnDrop').addEventListener('mousedown', hardDrop);
+
+        document.getElementById('restart-btn').addEventListener('touchstart', (e) => { e.preventDefault();
+            resetGame(); });
+        document.getElementById('restart-btn').addEventListener('mousedown', resetGame);
+
+        // ============================================================
+        // ROUND RECT POLYFILL
+        // ============================================================
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+                if (r > w / 2) r = w / 2;
+                if (r > h / 2) r = h / 2;
+                this.moveTo(x + r, y);
+                this.arcTo(x + w, y, x + w, y + h, r);
+                this.arcTo(x + w, y + h, x, y + h, r);
+                this.arcTo(x, y + h, x, y, r);
+                this.arcTo(x, y, x + w, y, r);
+                return this;
+            };
+        }
+
+        // ============================================================
+        // START
+        // ============================================================
+        console.log('🚀 TETRIS SPACE - BY AP21');
+
+        // Generate Logo
+        generateLogo();
+
+        resetGame();
+        requestAnimationFrame(gameLoop);
+    </script>
+</body>
+</html>
